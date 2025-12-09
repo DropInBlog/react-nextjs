@@ -10,7 +10,14 @@ export async function installTemplates(routerType: string, targetDir: string) {
   console.log(chalk.blue(`Installing DropInBlog templates for ${routerType} router...`));
 
   const packageRoot = path.join(__dirname, '..');
-  const templatesDir = path.join(packageRoot, 'templates', `${routerType}-router`);
+  // Prefer templates at package root; fall back to dist/templates for packages that only publish dist
+  const candidates = [
+    path.join(packageRoot, 'templates', `${routerType}-router`),
+    path.join(packageRoot, 'dist', 'templates', `${routerType}-router`),
+  ];
+  const templatesDir = (await Promise.all(candidates.map((p) => fs.pathExists(p)))).reduce<string | null>((acc, exists, idx) => {
+    return acc ?? (exists ? candidates[idx] : null);
+  }, null) ?? candidates[0];
   const targetBlogDir = path.join(targetDir, routerType === 'app' ? 'app/blog' : 'pages/blog');
 
   if (!await fs.pathExists(templatesDir)) {
@@ -29,7 +36,7 @@ export async function installTemplates(routerType: string, targetDir: string) {
   console.log('1. Configure your DropInBlog API credentials in environment variables:');
   console.log('   DROPINBLOG_BLOG_ID=your-blog-id');
   console.log('   DROPINBLOG_API_TOKEN=your-api-token');
-  console.log('2. Install dependencies: npm install @dropinblog/react-core @dropinblog/react-nextjs');
+  console.log('2. Install dependencies: npm install @dropinblog/react-nextjs @dropinblog/react-core');
   console.log('3. Start your Next.js development server');
   console.log('4. Visit http://localhost:3000/blog to see your blog');
 }

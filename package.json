@@ -1,6 +1,6 @@
 {
   "name": "@dropinblog/react-nextjs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Next.js adapter for @dropinblog/react-core with server-side rendering support",
   "publishConfig": {
     "access": "public"
@@ -12,7 +12,7 @@
     "dropinblog-nextjs": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/copy-templates.cjs",
     "dev": "tsup --watch",
     "prepublishOnly": "npm run build"
   },
