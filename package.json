@@ -1,6 +1,6 @@
 {
   "name": "@dropinblog/react-nextjs",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Next.js adapter for @dropinblog/react-core with server-side rendering support",
   "publishConfig": {
     "access": "public"

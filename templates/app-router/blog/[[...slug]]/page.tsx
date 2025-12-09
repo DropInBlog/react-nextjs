@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation';
 import Script from 'next/script';
 
 interface PageParams {
-  params: {
+  params: Promise<{
     slug?: string[];
-  };
+  }>;
 }
 
 async function fetchData(slug?: string[]) {
@@ -72,7 +72,7 @@ export default async function BlogPage({ params }: PageParams) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} suppressHydrationWarning />
-      <div dangerouslySetInnerHTML={{ __html: data.body_html }} suppressHydrationWarning />
+      <div dangerouslySetInnerHTML={{ __html: data.body_html || '' }} suppressHydrationWarning />
       {proxyjsScript && (
         <Script
           src={proxyjsScript.src}
