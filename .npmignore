@@ -1,0 +1,10 @@
+src
+cli
+templates
+tsconfig.json
+tsup.config.ts
+.env
+.env.local
+*.log
+.DS_Store
+node_modules
