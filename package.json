@@ -1,6 +1,6 @@
 {
   "name": "@dropinblog/react-nextjs",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Next.js adapter for @dropinblog/react-core with server-side rendering support",
   "publishConfig": {
     "access": "public"
@@ -32,7 +32,7 @@
   "author": "",
   "license": "MIT",
   "peerDependencies": {
-    "@dropinblog/react-core": "^1.0.0",
+    "@dropinblog/react-core": "^1.0.10",
     "next": ">=15.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
@@ -43,7 +43,7 @@
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {
-    "@dropinblog/react-core": "1.0.9",
+    "@dropinblog/react-core": "1.0.10",
     "@types/fs-extra": "^11.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
