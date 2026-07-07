@@ -1,5 +1,6 @@
 import { createNextServerClient, getMetadata, extractStylesAndScripts } from '@dropinblog/react-nextjs';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Script from 'next/script';
 
 interface PageParams {
@@ -8,13 +9,22 @@ interface PageParams {
   }>;
 }
 
-async function fetchData(slug?: string[]) {
-  const client = createNextServerClient();
+async function getRequestOrigin() {
+  const h = await headers();
+  const host = h.get('host');
+  if (!host) return undefined;
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  const proto = h.get('x-forwarded-proto') ?? (isLocal ? 'http' : 'https');
+  return `${proto}://${host}`;
+}
 
+async function fetchData(slug?: string[]) {
   if (!slug || slug.length === 0) {
-    // /blog - main list
+    const client = createNextServerClient({ requestOrigin: await getRequestOrigin() });
     return await client.fetchMainList(1);
   }
+
+  const client = createNextServerClient();
 
   if (slug.length === 2 && slug[0] === 'page') {
     // /blog/page/{page} - main list pagination

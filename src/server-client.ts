@@ -32,6 +32,29 @@ function ensureFetch(fetchImpl?: typeof fetch): typeof fetch {
   throw new Error('Fetch implementation is required');
 }
 
+function withBlogUrl(fetchImpl: typeof fetch, blogUrl?: string): typeof fetch {
+  if (!blogUrl) {
+    return fetchImpl;
+  }
+  return ((input, init) => {
+    try {
+      const urlString =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+      const url = new URL(urlString);
+      if (!url.searchParams.has('blogurl')) {
+        url.searchParams.set('blogurl', blogUrl);
+      }
+      return fetchImpl(url.toString(), init);
+    } catch {
+      return fetchImpl(input as Parameters<typeof fetch>[0], init);
+    }
+  }) as typeof fetch;
+}
+
 function resolveServerConfig(config: NextDropInBlogConfig = {}): ResolvedDropInBlogConfig {
   const blogId = config.blogId ?? readServerEnv('DROPINBLOG_BLOG_ID');
   const apiToken = config.apiToken ?? readServerEnv('DROPINBLOG_API_TOKEN');
@@ -44,6 +67,11 @@ function resolveServerConfig(config: NextDropInBlogConfig = {}): ResolvedDropInB
   }
 
   const { basePath, baseSegment, baseParts } = normalizeBasePath(config.basePath);
+  const explicitBlogUrl = config.blogUrl ?? readServerEnv('DROPINBLOG_BLOG_URL');
+  const derivedBlogUrl = config.requestOrigin
+    ? `${config.requestOrigin.replace(/\/+$/, '')}${basePath}`
+    : undefined;
+  const blogUrl = explicitBlogUrl ?? derivedBlogUrl;
 
   return {
     blogId,
@@ -52,7 +80,7 @@ function resolveServerConfig(config: NextDropInBlogConfig = {}): ResolvedDropInB
     baseSegment,
     baseParts,
     apiBaseUrl: (config.apiBaseUrl ?? DEFAULT_API_BASE_URL).replace(/\/$/, ''),
-    fetchImpl: ensureFetch(config.fetchImpl),
+    fetchImpl: withBlogUrl(ensureFetch(config.fetchImpl), blogUrl),
     cacheTtlMs: config.cacheTtlMs ?? DEFAULT_CACHE_TTL,
     defaultFields: config.defaultFields ?? DEFAULT_FIELDS,
   };
