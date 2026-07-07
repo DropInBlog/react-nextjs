@@ -3,14 +3,23 @@ import Head from 'next/head';
 import { DropInBlogProvider, DropInBlogContent, RenderedResponse } from '@dropinblog/react-core';
 import { createNextServerClient, getMetadata, HeadElements } from '@dropinblog/react-nextjs';
 
-const client = createNextServerClient();
-
 interface Props {
   data: RenderedResponse;
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const slug = context.params?.slug as string[] | undefined;
+  const isMainList = !slug || slug.length === 0;
+
+  let requestOrigin: string | undefined;
+  if (isMainList) {
+    const host = context.req.headers.host;
+    const proto = context.req.headers['x-forwarded-proto'];
+    const isLocal = !!host && (host.startsWith('localhost') || host.startsWith('127.0.0.1'));
+    const scheme = (Array.isArray(proto) ? proto[0] : proto) ?? (isLocal ? 'http' : 'https');
+    requestOrigin = host ? `${scheme}://${host}` : undefined;
+  }
+  const client = createNextServerClient(requestOrigin ? { requestOrigin } : {});
 
   try {
     let data: RenderedResponse;

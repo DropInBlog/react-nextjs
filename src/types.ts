@@ -18,4 +18,6 @@ export interface NextMetadataProps {
 
 export interface NextDropInBlogConfig extends DropInBlogConfig {
   blogBaseUrl?: string;
+  blogUrl?: string;
+  requestOrigin?: string;
 }
