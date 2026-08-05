@@ -74,7 +74,7 @@ export default function BlogPage({ data }: Props) {
       </Head>
       <DropInBlogProvider
         blogId={process.env.NEXT_PUBLIC_DROPINBLOG_BLOG_ID}
-        apiToken={process.env.NEXT_PUBLIC_DROPINBLOG_API_TOKEN}
+        apiKey={process.env.NEXT_PUBLIC_DROPINBLOG_API_KEY}
       >
         <DropInBlogContent bodyHtml={data.body_html} />
       </DropInBlogProvider>

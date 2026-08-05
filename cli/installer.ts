@@ -35,7 +35,7 @@ export async function installTemplates(routerType: string, targetDir: string) {
   console.log(chalk.cyan('\nNext steps:'));
   console.log('1. Configure your DropInBlog API credentials in environment variables:');
   console.log('   DROPINBLOG_BLOG_ID=your-blog-id');
-  console.log('   DROPINBLOG_API_TOKEN=your-api-token');
+  console.log('   DROPINBLOG_API_KEY=your-api-key');
   console.log('2. Install dependencies: npm install @dropinblog/react-nextjs @dropinblog/react-core');
   console.log('3. Start your Next.js development server');
   console.log('4. Visit http://localhost:3000/blog to see your blog');

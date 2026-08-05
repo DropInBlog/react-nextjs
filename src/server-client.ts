@@ -18,6 +18,16 @@ function readServerEnv(key: string): string | undefined {
   return undefined;
 }
 
+// resolveServerConfig runs per request, so each deprecation is reported
+// once per process rather than once per call.
+const warned = new Set<string>();
+
+function warnOnce(message: string): void {
+  if (warned.has(message)) return;
+  warned.add(message);
+  console.warn(`[@dropinblog/react-nextjs] ${message}`);
+}
+
 function normalizeBasePath(input?: string) {
   const trimmed = (input ?? DEFAULT_BASE_PATH).trim();
   const withoutSlashes = trimmed.replace(/^\/+/, '').replace(/\/+$/, '');
@@ -61,13 +71,28 @@ function withBlogUrl(fetchImpl: typeof fetch, blogUrl?: string): typeof fetch {
 
 function resolveServerConfig(config: NextDropInBlogConfig = {}): ResolvedDropInBlogConfig {
   const blogId = config.blogId ?? readServerEnv('DROPINBLOG_BLOG_ID');
-  const apiToken = config.apiToken ?? readServerEnv('DROPINBLOG_API_TOKEN');
+  // Options beat env vars; the current names beat the legacy ones they
+  // replaced. Blank values fall through so a half-finished rename still
+  // authenticates.
+  const apiKey =
+    config.apiKey ||
+    config.apiToken ||
+    readServerEnv('DROPINBLOG_API_KEY') ||
+    readServerEnv('DROPINBLOG_API_TOKEN');
 
   if (!blogId) {
     throw new Error('DROPINBLOG_BLOG_ID environment variable is required');
   }
-  if (!apiToken) {
-    throw new Error('DROPINBLOG_API_TOKEN environment variable is required');
+  if (!apiKey) {
+    throw new Error('DROPINBLOG_API_KEY environment variable is required');
+  }
+
+  if (!config.apiKey) {
+    if (config.apiToken) {
+      warnOnce('The "apiToken" option is deprecated — rename it to "apiKey".');
+    } else if (!readServerEnv('DROPINBLOG_API_KEY')) {
+      warnOnce('DROPINBLOG_API_TOKEN is deprecated — rename it to DROPINBLOG_API_KEY.');
+    }
   }
 
   const { basePath, baseSegment, baseParts } = normalizeBasePath(config.basePath);
@@ -79,7 +104,7 @@ function resolveServerConfig(config: NextDropInBlogConfig = {}): ResolvedDropInB
 
   return {
     blogId,
-    apiToken,
+    apiKey,
     basePath,
     baseSegment,
     baseParts,

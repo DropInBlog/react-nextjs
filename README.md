@@ -24,7 +24,7 @@ Create a `.env.local` file in your Next.js project:
 
 ```env
 DROPINBLOG_BLOG_ID=your_dropinblog_blog_id
-DROPINBLOG_API_TOKEN=your_dropinblog_api_token
+DROPINBLOG_API_KEY=your_dropinblog_api_key
 ```
 
 ### 2. Install Templates
