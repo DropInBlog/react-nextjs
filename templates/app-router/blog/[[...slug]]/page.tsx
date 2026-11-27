@@ -7,6 +7,9 @@ interface PageParams {
   params: Promise<{
     slug?: string[];
   }>;
+  searchParams: Promise<{
+    preview?: string | string[];
+  }>;
 }
 
 async function getRequestOrigin() {
@@ -18,7 +21,7 @@ async function getRequestOrigin() {
   return `${proto}://${host}`;
 }
 
-async function fetchData(slug?: string[]) {
+async function fetchData(slug?: string[], preview?: string) {
   if (!slug || slug.length === 0) {
     const client = createNextServerClient({ requestOrigin: await getRequestOrigin() });
     return await client.fetchMainList(1);
@@ -59,21 +62,27 @@ async function fetchData(slug?: string[]) {
 
   if (slug.length === 1) {
     // /blog/{postSlug} - single post
-    return await client.fetchPost(slug[0]);
+    // ?preview carries the token from the admin's Preview Post link for a draft or scheduled post
+    return await client.fetchPost(slug[0], { preview });
   }
 
   return notFound();
 }
 
-export async function generateMetadata({ params }: PageParams) {
+async function getPreview(searchParams: PageParams['searchParams']) {
+  const { preview } = await searchParams;
+  return typeof preview === 'string' ? preview : undefined;
+}
+
+export async function generateMetadata({ params, searchParams }: PageParams) {
   const resolvedParams = await params;
-  const data = await fetchData(resolvedParams.slug);
+  const data = await fetchData(resolvedParams.slug, await getPreview(searchParams));
   return getMetadata({ data, blogBaseUrl: '/blog' });
 }
 
-export default async function BlogPage({ params }: PageParams) {
+export default async function BlogPage({ params, searchParams }: PageParams) {
   const resolvedParams = await params;
-  const data = await fetchData(resolvedParams.slug);
+  const data = await fetchData(resolvedParams.slug, await getPreview(searchParams));
   const { styles, scripts } = extractStylesAndScripts({ data, blogBaseUrl: '/blog' });
 
   // Extract proxyjs script

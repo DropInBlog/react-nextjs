@@ -124,7 +124,7 @@ export function createNextServerClient(config: NextDropInBlogConfig = {}): NextS
     fetchMainList: (page = 1) => client.fetchMainList(page),
     fetchCategory: (slug: string, page = 1) => client.fetchCategory(slug, page),
     fetchAuthor: (slug: string, page = 1) => client.fetchAuthor(slug, page),
-    fetchPost: (slug: string) => client.fetchPost(slug),
+    fetchPost: (slug, options) => client.fetchPost(slug, options),
     fetchSitemap: () => client.fetchSitemap(),
     fetchFeed: () => client.fetchFeed(),
     fetchCategoryFeed: (slug: string) => client.fetchCategoryFeed(slug),

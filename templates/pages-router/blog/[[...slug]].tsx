@@ -50,7 +50,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
       data = await client.fetchAuthor(slug[1], page);
     } else if (slug.length === 1) {
       // /blog/{postSlug} - single post
-      data = await client.fetchPost(slug[0]);
+      // ?preview carries the token from the admin's Preview Post link for a draft or scheduled post
+      const preview = typeof context.query.preview === 'string' ? context.query.preview : undefined;
+      data = await client.fetchPost(slug[0], { preview });
     } else {
       return { notFound: true };
     }
